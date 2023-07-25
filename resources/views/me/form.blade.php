@@ -7,28 +7,27 @@
 
 @push('css')
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/select2.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/tree.css') }}">
 @endpush
 
 @section('content')
-
-
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12 col-xl-12">
                 <div class="row">
-                    <div class="col-sm-12">
+                    <div class="col-sm-12" style="padding:11px">
                         <div class="card">
                             <div class="card-header pb-0">
                                 <h5>Mack (Controller - Model - Migrate - Validation)</h5>
+                                <p>Dont Write id Column</p>
                             </div>
                             <div class="card-body">
                                 <form class="theme-form" method="post" action="{{ route('makeTableRequest') }}">
                                     @csrf
                                     <div class="mb-3 col-xl-2">
-                                        <label class="col-form-label pt-0" for="exampleName"> Model Name (samill)</label>
+                                        <label class="col-form-label pt-0" for="exampleName"> Model Name (small)</label>
                                         <input class="form-control" id="exampleName" type="text" required
                                             aria-describedby="emailHelp" placeholder="user" name="tableNameSingel" />
-
                                     </div>
 
                                     <div class="row element" id="div_0">
@@ -41,7 +40,7 @@
 
                                         <div class="mb-3 col-xl-2">
                                             <label class="col-form-label pt-0">Type</label>
-                                            <select required class="js-example-placeholder-multiple col-sm-12"
+                                            <select required class="form-control col-sm-12"
                                                 name="type[0]">
                                                 <option value="integer">integer</option>
                                                 <option value="string">string</option>
@@ -74,7 +73,7 @@
 
                                         <div class="col-2">
                                             <div class="mb-3">
-                                                <span class="add btn btn-primary">اضافة</span>
+                                                <span class="add btn btn-info">Add Column</span>
                                             </div>
                                         </div>
 
@@ -86,13 +85,17 @@
                                         <label class="mb-0" for="RememberToken">RememberToken</label>
                                     </div>
 
-                                    <div class="checkbox p-0">
+                                    <div class="checkbox p-0 mb-5">
                                         <input id="Timestamps" type="checkbox" name="Timestamps" />
                                         <label class="mb-0" for="Timestamps">Timestamps</label>
                                     </div>
-                                    <div class="card-footer">
+
+                                    <div class="mb-3  col-xl-12">
                                         <button class="btn btn-primary">Submit</button>
                                     </div>
+                                    {{-- <div class="">
+                                        <button class="btn btn-primary">Submit</button>
+                                    </div> --}}
                                 </form>
                             </div>
 
@@ -102,13 +105,42 @@
                 </div>
             </div>
 
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header pb-0">
+                        <h5>Your Files (<a href="{{ route('handelFolserZip') }}"><i class="fa fa-download" aria-hidden="true"></i></a>)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="treeBasic">
+                            <ul>
+                                @foreach ($directories as $director)
+                                    <li data-jstree='{"opened":true}'>
+                                        {{ basename($director) }}
+                                        <ul>
+                                            @foreach (Storage::files($director) as $fileName)
+                                                <li data-jstree='{"type":"file"}'>{{ basename($fileName) }}</li>
+                                            @endforeach
+                                            {{-- <li data-jstree='{"type":"file"}'>Css two</li> --}}
+
+                                        </ul>
+                                    </li>
+                                @endforeach
+
+                                {{-- <li data-jstree='{"type":"file"}'>index file</li> --}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+
 
     @push('scripts')
         <script src="{{ asset('assets/js/bootstrap/popper.min.js') }}"></script>
         <script src="{{ asset('assets/js/bootstrap/bootstrap.min.js') }}"></script>
-
+        <script src="{{ asset('assets/js/tree/jstree.min.js') }}"></script>
+        <script src="{{ asset('assets/js/tree/tree.js') }}"></script>
         <script src="{{ asset('assets/js/select2/select2.full.min.js') }}"></script>
         <script src="{{ asset('assets/js/select2/select2-custom.js') }}"></script>
 
@@ -143,7 +175,7 @@
 
                         <div class="mb-3 col-xl-2">
                             <label class="col-form-label pt-0" for="exampleInputEmail1">Type</label>
-                            <select class="js-example-placeholder-multiple col-sm-12" name="type[${nextindex}]">
+                            <select class="form-control col-sm-12" name="type[${nextindex}]">
                                 <option value="integer">integer</option>
                                 <option value="string">string</option>
                                 <option value="image">image</option>
@@ -193,6 +225,11 @@
                     // Remove <div> with id
                     $("#div_" + deleteindex).remove();
                 });
+            });
+
+            $(".js-example-basic-multiple").select2();
+            $(".js-example-placeholder-multiple2").select2({
+                placeholder: "Select Your Name"
             });
         </script>
     @endpush

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use ZipArchive;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
@@ -13,19 +15,78 @@ class CRMMContoller extends Controller
 {
     function makeTable()
     {
-        // Session::forget('sessionn');
-        return view('welcome');
+        Session::forget('sessionn');
+        $file = [];
+        if (Session::has('sessionn')) {
+            $directories = Storage::disk('local')->directories('/folder/' . Session::get('sessionn'));
+            // return $directories;
+            foreach ($directories as $key => $value) {
+                $file[] = basename($value);
+
+                // $zip->addFile($value, $file);
+            }
+        }else {
+            $directories = [];
+        }
+
+        return view('me.form', compact('directories'));
+    }
+
+    function handelFolserZip()
+    {
+
+        // return Session::get('sessionn');
+        // Get real path for our folder
+        $rootPath = realpath(storage_path('app/folder/' . Session::get('sessionn')));
+
+        $fileName = public_path('zip/' . Session::get('sessionn') . '.zip');
+        // Initialize archive object
+        $zip = new ZipArchive();
+
+        $zip->open($fileName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+        // return $fileName;
+
+
+        // Create recursive directory iterator
+
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($rootPath),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($files as $name => $file) {
+            // Skip directories (they would be added automatically)
+            if (!$file->isDir()) {
+                // Get real and relative path for current file
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($rootPath) + 1);
+
+                // Add current file to archive
+                $zip->addFile($filePath, $relativePath);
+            }
+        }
+
+        return redirect()->route('downloadFolders');
+        // return response()->download($fileName);
+    }
+
+    public function downloadFolders()
+    {
+        $fileName = public_path('zip/' . Session::get('sessionn') . '.zip');
+
+        return response()->download($fileName);
     }
 
     function makeTableRequest(Request $request)
     {
-        if (Session::has('sessionn')) {
-            Session::forget('sessionn');
+        if (!Session::has('sessionn')) {
+            Session::put('sessionn', strtotime(now()));
         }
 
         $tableNameDuble =  Str::plural($request->tableNameSingel);
-        Session::put('sessionn', $tableNameDuble . strtotime(now()));
-        $folderName = $tableNameDuble . strtotime(now());
+        $folderName = Session::get('sessionn') . '/' . $tableNameDuble;
+
+
         $nameFillablesName = $this->migration($request, $tableNameDuble, $folderName);
 
 
@@ -39,27 +100,7 @@ class CRMMContoller extends Controller
         // Controller
         $this->controller($request, $tableNameDuble, $folderName);
 
-
-
-        $filename = storage_path('app/folder/' . Session::get('sessionn'));
-
-        $zip = new ZipArchive;
-
-        $fileName = 'zip/' . Session::get('sessionn') . '.zip';
-
-        if ($zip->open(public_path($fileName), ZipArchive::CREATE) === TRUE) {
-
-            $files = File::files($filename);
-
-            foreach ($files as $key => $value) {
-                $file = basename($value);
-                $zip->addFile($value, $file);
-            }
-
-            $zip->close();
-        }
-        Session::forget('sessionn');
-        return response()->download(public_path($fileName));
+        return redirect()->back();
     }
 
     public function replaceText($testReplacr, $replaceTo, $path)
@@ -72,13 +113,16 @@ class CRMMContoller extends Controller
 
     public function migration($request, $tableNameDuble, $folderName)
     {
+        // return 'good';
 
         $replace = '$table->increments("id");' . "\n";
         $nameFillable = '';
+        $replace2 = '';
         for ($i = 0; $i < count($request->name); $i++) {
             $nameFillable .= '\'' . $request->name[$i] . '\',';
             $nullable = '';
             $unique = '';
+            $relation = '';
             $default = '';
             if (isset($request->unique[$i])) {
                 $unique = '->unique()';
@@ -91,7 +135,14 @@ class CRMMContoller extends Controller
             if (isset($request->default[$i])) {
                 $default = '->default("' . $request->default[$i] . '")';
             }
-            $replace .= '$table->' . $request->type[$i] . '("' . $request->name[$i] . '")' . $nullable . $unique . $default . ';';
+
+            if (Str::containsAll($request->name[$i], ['_']) == 1) {
+                $m = explode('_', $request->name[$i]);
+                $relation = '->unsigned()';
+                $replace2 =  '$table->foreign("' . $request->name[$i] . '")->references("id")->on("' . Str::plural($m[0]) . '")->onDelete("cascade")->onUpdate("cascade");';
+            }
+            $replace .= '$table->' . $request->type[$i] . '("' . $request->name[$i] . '")' . $nullable . $unique . $default . $relation . ';';
+            $replace .= $replace2;
         }
 
         if ($request->RememberToken) {
@@ -119,7 +170,7 @@ class CRMMContoller extends Controller
 
 
         $fileMigateNew = File::get(storage_path('app/' . $path));
-        $nameTable = str_replace("users", $tableNameDuble, $fileMigateNew);
+        $nameTable = str_replace("nametablemigration", $tableNameDuble, $fileMigateNew);
 
         Storage::put($path, $nameTable);
         return  $nameFillable;
@@ -127,12 +178,46 @@ class CRMMContoller extends Controller
 
     public function model($request, $nameFillablesName, $folderName)
     {
+        $replase1 = '];';
+        $replase2 = '];';
         $fileModelMaster = File::get(storage_path('app/master/model.php'));
         $model = str_replace("fillableName", $nameFillablesName, $fileModelMaster);
         $pathModel = 'folder/' . $folderName . '/' . Str::ucfirst($request->tableNameSingel) . '.php';
         Storage::put($pathModel, $model);
 
+
+        $pathModelRelation = '';
+
         $this->replaceText('modelName', Str::ucfirst($request->tableNameSingel), $pathModel);
+
+        for ($i = 0; $i < count($request->name); $i++) {
+            if (Str::containsAll($request->name[$i], ['_']) == 1) {
+                $m = explode('_', $request->name[$i]);
+
+                // $this->replaceText('];', $replase1, $pathModel);
+
+
+
+
+
+
+
+                $pathModelRelation = 'folder/' . Session::get('sessionn') . '/' . Str::plural($m[0]) . '/' . Str::ucfirst($m[0]) . '.php';
+                $replase2 = '];public function ' . $request->tableNameSingel . '()
+                    {
+                        return $this->hasMany(' . Str::ucfirst($request->tableNameSingel) . '::class, "' . $request->name[$i] . '");
+                    }';
+
+                $this->replaceText('];', $replase2, $pathModelRelation);
+
+
+                $replase1 = '];public function ' . $m[0] . '()
+                    {
+                        return $this->belongsTo(' . Str::ucfirst($m[0]) . '::class);
+                    }';
+                $this->replaceText('];', $replase1, $pathModel);
+            }
+        }
     }
 
     public function validation($request, $tableNameDuble, $folderName)

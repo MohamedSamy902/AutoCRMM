@@ -16,5 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::view('/', 'me.form')->name('index');
+Route::get('/', [CRMMContoller::class, 'makeTable'])->name('index');
 Route::post('/makeTableRequest', [CRMMContoller::class, 'makeTableRequest'])->name('makeTableRequest');
+Route::get('/handel/Folser/Zip', [CRMMContoller::class, 'handelFolserZip'])->name('handelFolserZip');
+Route::get('/download/folders', [CRMMContoller::class, 'downloadFolders'])->name('downloadFolders');
+

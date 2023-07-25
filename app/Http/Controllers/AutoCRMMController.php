@@ -83,19 +83,22 @@ class AutoCRMMController extends Controller
         // Controller
         $this->controller($request, $tableNameDuble, $folderName);
 
-        return redirect()->back();
+        // return redirect()->back();
     }
 
 
     public function migration($request, $tableNameDuble, $folderName)
     {
-        $replace = '';
+        $replace = '$table->increments("id");' . "\n";
         $nameFillable = '';
         $replace2 = '';
+        $id = '';
         for ($i = 0; $i < count($request->name); $i++) {
-            if ($request->name[$i] != 'id') {
-                $replace .= '$table->increments("id");' . "\n";
-            }
+            // if ($request->name[$i] == 'id') {
+            //     $id = '$table->increments("id");' . "\n";
+            // }
+
+
 
             $nameFillable .= '\'' . $request->name[$i] . '\',';
             $nullable = '';
@@ -125,6 +128,7 @@ class AutoCRMMController extends Controller
             $replace .= '$table->' . $request->type[$i] . '("' . $request->name[$i] . '")' . $nullable . $unique . $default . $relation . ';' . "\n";
             $replace .= $replace2 . "\n";
         }
+        // $replace .= $id;
 
         if ($request->RememberToken) {
             $replace .= '$table->rememberToken();' . "\n";

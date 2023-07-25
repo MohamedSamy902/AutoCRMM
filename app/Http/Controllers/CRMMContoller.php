@@ -15,7 +15,7 @@ class CRMMContoller extends Controller
 {
     function makeTable()
     {
-        Session::forget('sessionn');
+        // Session::forget('sessionn');
         $file = [];
         if (Session::has('sessionn')) {
             $directories = Storage::disk('local')->directories('/folder/' . Session::get('sessionn'));

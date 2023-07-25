@@ -83,7 +83,7 @@ class AutoCRMMController extends Controller
         // Controller
         $this->controller($request, $tableNameDuble, $folderName);
 
-        // return redirect()->back();
+        return redirect()->back();
     }
 
 

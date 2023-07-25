@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\crmm;
-use App\Http\Controllers\CRMMContoller;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CRMMContoller;
+use App\Http\Controllers\AutoCRMMController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,9 +17,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get('/', [CRMMContoller::class, 'makeTable'])->name('index');
-Route::post('/makeTableRequest', [CRMMContoller::class, 'makeTableRequest'])->name('makeTableRequest');
-Route::get('/handel/Folser/Zip', [CRMMContoller::class, 'handelFolserZip'])->name('handelFolserZip');
-Route::get('/download/folders', [CRMMContoller::class, 'downloadFolders'])->name('downloadFolders');
-Route::get('/delete/zip/file', [CRMMContoller::class, 'deleteZipFile'])->name('deleteZipFile');
+// Route::get('/', [CRMMContoller::class, 'makeTable'])->name('index');
+// Route::post('/makeTableRequest', [CRMMContoller::class, 'makeTableRequest'])->name('makeTableRequest');
+// Route::get('/handel/Folser/Zip', [CRMMContoller::class, 'handelFolserZip'])->name('handelFolserZip');
+// Route::get('/download/folders', [CRMMContoller::class, 'downloadFolders'])->name('downloadFolders');
+// Route::get('/delete/zip/file', [CRMMContoller::class, 'deleteZipFile'])->name('deleteZipFile');
+
+
+Route::get('/', [AutoCRMMController::class, 'viewBlade'])->name('index');
+Route::post('/makeTableRequest', [AutoCRMMController::class, 'makeCRMM'])->name('makeTableRequest');
+Route::get('/handel/Folser/Zip', [AutoCRMMController::class, 'handelFolserZip'])->name('handelFolserZip');
+Route::get('/download/folders', [AutoCRMMController::class, 'downloadFolders'])->name('downloadFolders');
+Route::get('/delete/zip/file', [AutoCRMMController::class, 'deleteZipFile'])->name('deleteZipFile');
 

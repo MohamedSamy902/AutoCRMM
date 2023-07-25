@@ -15,15 +15,12 @@ class CRMMContoller extends Controller
 {
     function makeTable()
     {
-        // Session::forget('sessionn');
         $file = [];
         if (Session::has('sessionn')) {
             $directories = Storage::disk('local')->directories('/folder/' . Session::get('sessionn'));
             // return $directories;
             foreach ($directories as $key => $value) {
                 $file[] = basename($value);
-
-                // $zip->addFile($value, $file);
             }
         }else {
             $directories = [];
@@ -75,6 +72,13 @@ class CRMMContoller extends Controller
         $fileName = public_path('zip/' . Session::get('sessionn') . '.zip');
 
         return response()->download($fileName);
+    }
+
+    public function deleteZipFile()
+    {
+        Session::forget('sessionn');
+
+        return redirect()->back();
     }
 
     function makeTableRequest(Request $request)

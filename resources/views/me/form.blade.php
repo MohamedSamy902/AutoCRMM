@@ -108,7 +108,9 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header pb-0">
-                        <h5>Your Files (<a href="{{ route('handelFolserZip') }}"><i class="fa fa-download" aria-hidden="true"></i></a>)</h5>
+                        <h5>Your Files (<a href="{{ route('handelFolserZip') }}"><i class="fa fa-download" aria-hidden="true"></i></a>)
+                            (<a href="{{ route('deleteZipFile') }}"><i class="fa fa-trash" aria-hidden="true"></i></a>)
+                        </h5>
                     </div>
                     <div class="card-body">
                         <div id="treeBasic">

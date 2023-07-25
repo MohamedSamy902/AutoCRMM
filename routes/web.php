@@ -20,4 +20,5 @@ Route::get('/', [CRMMContoller::class, 'makeTable'])->name('index');
 Route::post('/makeTableRequest', [CRMMContoller::class, 'makeTableRequest'])->name('makeTableRequest');
 Route::get('/handel/Folser/Zip', [CRMMContoller::class, 'handelFolserZip'])->name('handelFolserZip');
 Route::get('/download/folders', [CRMMContoller::class, 'downloadFolders'])->name('downloadFolders');
+Route::get('/delete/zip/file', [CRMMContoller::class, 'deleteZipFile'])->name('deleteZipFile');
 

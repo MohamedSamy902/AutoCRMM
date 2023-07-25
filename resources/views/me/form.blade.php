@@ -1,7 +1,7 @@
 @extends('layouts.admin.master')
 
 @section('title')
-    Default Forms
+    AutoCRMM
     {{-- {{ $title }} --}}
 @endsection
 
@@ -40,8 +40,7 @@
 
                                         <div class="mb-3 col-xl-2">
                                             <label class="col-form-label pt-0">Type</label>
-                                            <select required class="form-control col-sm-12"
-                                                name="type[0]">
+                                            <select required class="form-control col-sm-12" name="type[0]">
                                                 <option value="integer">integer</option>
                                                 <option value="string">string</option>
                                                 <option value="image">image</option>
@@ -108,7 +107,8 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header pb-0">
-                        <h5>Your Files (<a href="{{ route('handelFolserZip') }}"><i class="fa fa-download" aria-hidden="true"></i></a>)
+                        <h5>Your Files (<a href="{{ route('handelFolserZip') }}"><i class="fa fa-download"
+                                    aria-hidden="true"></i></a>)
                             (<a href="{{ route('deleteZipFile') }}"><i class="fa fa-trash" aria-hidden="true"></i></a>)
                         </h5>
                     </div>

@@ -45,9 +45,10 @@ class CRMMContoller extends Controller
 
         $zip = new ZipArchive;
 
-        $fileName = 'Example.zip';
+        $fileName = 'zip/' . Session::get('sessionn') . '.zip';
 
         if ($zip->open(public_path($fileName), ZipArchive::CREATE) === TRUE) {
+
             $files = File::files($filename);
 
             foreach ($files as $key => $value) {
@@ -59,28 +60,6 @@ class CRMMContoller extends Controller
         }
         Session::forget('sessionn');
         return response()->download(public_path($fileName));
-
-        // touch($filename);
-        // return $filename;
-
-        // ZipArchive::
-
-        // header('Content-Description: File Transfer');
-        // header('Content-Type: application/octet-stream');
-        // header("Cache-Control: no-cache, must-revalidate");
-        // header("Expires: 0");
-        // // header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
-        // // header('Content-Length: ' . filesize($filename));
-        // header('Pragma: public');
-        // //
-        // // /Clear system output buffer
-        // flush();
-
-        //Read the size of the file
-        // readfile($filename, true);
-
-        //Terminate from the script
-        // die();
     }
 
     public function replaceText($testReplacr, $replaceTo, $path)

@@ -83,7 +83,7 @@ class AutoCRMMController extends Controller
         // Controller
         $this->controller($request, $tableNameDuble, $folderName);
 
-        return redirect()->back();
+        // return redirect()->back();
     }
 
 
@@ -164,28 +164,33 @@ class AutoCRMMController extends Controller
         Storage::put($pathModel, $model);
 
 
-        $pathModelRelation = '';
 
         $this->replaceText('modelName', $this->firstCharacterCapitalized($request->tableNameSingel), $pathModel);
 
         for ($i = 0; $i < count($request->name); $i++) {
             if (Str::containsAll($request->name[$i], ['_']) == 1) {
                 $m = explode('_', $request->name[$i]);
-
-                $pathModelRelation = 'folder/' . Session::get('sessionn') . '/' . $this->wordToPlural($m[0]) . '/' . $this->firstCharacterCapitalized($m[0])  . '.php';
-                $replase2 = '];public function ' . $request->tableNameSingel . '()
+                if ($m[1] == 'id') {
+                    $pathModelRelation = 'folder/' . Session::get('sessionn') . '/' . $this->wordToPlural($m[0]) . '/' . $this->firstCharacterCapitalized($m[0])  . '.php';
+                // return $pathModelRelation;
+                if (Storage::exists($pathModelRelation)) {
+                    $hasMany = '];public function ' . $request->tableNameSingel . '()
                     {
                         return $this->hasMany(' . $this->firstCharacterCapitalized($request->tableNameSingel) . '::class, "' . $request->name[$i] . '");
                     }';
 
-                $this->replaceText('];', $replase2, $pathModelRelation);
+                $this->replaceText('];', $hasMany, $pathModelRelation);
 
 
-                $replase1 = '];public function ' . $m[0] . '()
+                $belongsTo = '];public function ' . $m[0] . '()
                     {
                         return $this->belongsTo(' . Str::ucfirst($m[0]) . '::class);
                     }';
-                $this->replaceText('];', $replase1, $pathModel);
+                $this->replaceText('];', $belongsTo, $pathModel);
+                }
+                }
+
+
             }
         }
     }
